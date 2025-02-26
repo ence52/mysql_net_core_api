@@ -1,0 +1,64 @@
+services:
+  mysql_net_core_api:
+    image: ${DOCKER_REGISTRY-}mysqlnetcoreapi
+    build:
+      context: .
+      dockerfile: mysql_net_core_api/Dockerfile
+    ports:
+        - '5000:5000' 
+        - '5001:5001' 
+    environment:
+      - ASPNETCORE_ENVIRONMENT= Development
+    depends_on:
+        - db
+        - redis
+    networks:
+        - app_network
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: ECommerceDB
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"  
+    volumes:
+      - mysql_data:/var/lib/mysql  
+    networks:
+      - app_network
+
+ 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: example
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"  
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_PASSWORD: 123456
+      REDIS_PORT: 6379
+      REDIS_DATABASES: 4 
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+volumes:
+  mysql_data:
