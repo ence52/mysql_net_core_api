@@ -24,9 +24,11 @@ namespace mysql_net_core_api.Migrations
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -34,7 +36,7 @@ namespace mysql_net_core_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
@@ -59,7 +61,7 @@ namespace mysql_net_core_api.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderItem", b =>
@@ -86,7 +88,7 @@ namespace mysql_net_core_api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItem");
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Product", b =>
@@ -95,8 +97,8 @@ namespace mysql_net_core_api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -110,7 +112,7 @@ namespace mysql_net_core_api.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
@@ -119,10 +121,10 @@ namespace mysql_net_core_api.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.User", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -158,8 +160,8 @@ namespace mysql_net_core_api.Migrations
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
                 {
-                    b.HasOne("mysql_net_core_api.Core.Entitites.User", "User")
-                        .WithMany("Orders")
+                    b.HasOne("mysql_net_core_api.Core.Entitites.UserEntity", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -188,13 +190,11 @@ namespace mysql_net_core_api.Migrations
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Product", b =>
                 {
-                    b.HasOne("mysql_net_core_api.Core.Entitites.Category", "Category")
+                    b.HasOne("mysql_net_core_api.Core.Entitites.Category", null)
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Category", b =>
@@ -205,11 +205,6 @@ namespace mysql_net_core_api.Migrations
             modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
                 {
                     b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.User", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

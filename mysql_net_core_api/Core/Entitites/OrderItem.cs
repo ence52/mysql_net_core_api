@@ -1,6 +1,6 @@
 ﻿namespace mysql_net_core_api.Core.Entitites
 {
-    public class OrderItem
+    public class OrderItem:IEntity<Guid>
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid OrderId { get; set; }

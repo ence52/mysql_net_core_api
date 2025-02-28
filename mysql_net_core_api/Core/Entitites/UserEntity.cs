@@ -1,7 +1,7 @@
 ﻿
 namespace mysql_net_core_api.Core.Entitites
 {
-    public class UserEntity
+    public class UserEntity:IEntity<Guid>
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string FirstName { get; set; } = string.Empty;

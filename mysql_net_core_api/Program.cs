@@ -41,6 +41,12 @@ builder.Services.AddScoped<ICacheService,CacheService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+//Generic Repo
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+//Generic Service
+builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
+
+
 //JWT Configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
 {
