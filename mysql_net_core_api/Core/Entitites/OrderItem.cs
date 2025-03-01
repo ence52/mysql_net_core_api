@@ -10,6 +10,6 @@
         public decimal TotalPrice => Quantity * UnitPrice;
 
         public Order? Order { get; set; }
-        public Product? Product { get; set; }
+        public ProductEntity? Product { get; set; }
     }
 }

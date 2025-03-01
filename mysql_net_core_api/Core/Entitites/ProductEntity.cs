@@ -2,7 +2,7 @@
 
 namespace mysql_net_core_api.Core.Entitites
 {
-    public class Product:IEntity<Guid>
+    public class ProductEntity:IEntity<Guid>
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;

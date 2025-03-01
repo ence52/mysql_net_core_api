@@ -9,6 +9,7 @@ using mysql_net_core_api.Repositories;
 using mysql_net_core_api.Services;
 using mysql_net_core_api.Services.Auth;
 using mysql_net_core_api.Services.JWT;
+using mysql_net_core_api.Services.Product;
 using mysql_net_core_api.Services.User;
 using Serilog;
 using StackExchange.Redis;
@@ -41,10 +42,13 @@ builder.Services.AddScoped<ICacheService,CacheService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+//Product Configuration
+builder.Services.AddScoped<IProductService, ProductService>();
+
 //Generic Repo
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 //Generic Service
-builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
+
 
 
 //JWT Configuration

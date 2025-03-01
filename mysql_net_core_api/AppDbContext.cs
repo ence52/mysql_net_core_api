@@ -7,7 +7,7 @@ namespace mysql_net_core_api
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<UserEntity> Users { get; set; }
-        public DbSet<Product> Products{ get; set; }
+        public DbSet<ProductEntity> Products{ get; set; }
         public DbSet<Category> Categories{ get; set; }
         public DbSet<Order> Orders{ get; set; }
         public DbSet<OrderItem> OrderItems{ get; set; }

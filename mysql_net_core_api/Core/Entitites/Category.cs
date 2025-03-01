@@ -6,6 +6,6 @@
 
         public string Name { get; set; } = string.Empty;
 
-        public List<Product> Products { get; set; } = new();
+        public List<ProductEntity> Products { get; set; } = new();
     }
 }
