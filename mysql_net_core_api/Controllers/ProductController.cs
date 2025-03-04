@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using mysql_net_core_api.DTOs.Product;
 using mysql_net_core_api.Services.Product;
@@ -8,6 +7,7 @@ namespace mysql_net_core_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
@@ -17,7 +17,7 @@ namespace mysql_net_core_api.Controllers
             _logger = logger;
             _service = service;
         }
-        [Authorize]
+        [Authorize(Roles = "Admin,Customer")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -41,6 +41,7 @@ namespace mysql_net_core_api.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Customer")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id) {
             try
@@ -87,7 +88,7 @@ namespace mysql_net_core_api.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductCreateDto dto)
         {
             try
@@ -108,5 +109,22 @@ namespace mysql_net_core_api.Controllers
             }
 
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteById(Guid id)
+        {
+            try
+            {
+                await _service.DeleteProductById(id);
+                _logger.LogInformation("Product deleted by id: {id}", id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation("An error occured while deleting product with id:{id}.{ex}",id,ex.Message);
+                throw;
+            }
+        }
+    
     }
 }

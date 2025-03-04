@@ -1,6 +1,6 @@
-﻿namespace mysql_net_core_api.Core.Entitites
+﻿namespace mysql_net_core_api.DTOs.OrderItem
 {
-    public class OrderItem:IEntity<Guid>
+    public class OrderItemDto
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid OrderId { get; set; }
@@ -8,8 +8,5 @@
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal TotalPrice => Quantity * UnitPrice;
-
-        public Order? Order { get; set; }
-        public ProductEntity? Product { get; set; }
     }
 }

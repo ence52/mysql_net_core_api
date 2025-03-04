@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using mysql_net_core_api.Core.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace mysql_net_core_api.DTOs.User
 {
@@ -17,8 +18,11 @@ namespace mysql_net_core_api.DTOs.User
         [Required]
         [Phone]
         public string Phone { get; set; }
+
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public List<UserRoleEnum> Role { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; } 
 
     }
 

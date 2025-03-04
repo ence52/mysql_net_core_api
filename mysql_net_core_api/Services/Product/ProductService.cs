@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using mysql_net_core_api.Core.Entitites;
+using mysql_net_core_api.Core.Helpers;
 using mysql_net_core_api.Core.Interfaces;
 using mysql_net_core_api.DTOs.Product;
 using mysql_net_core_api.Repositories;
@@ -8,14 +9,14 @@ namespace mysql_net_core_api.Services.Product
 {
     public class ProductService : IProductService
     {
-        private readonly IRepository<ProductEntity> _repo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProductService> _logger;
         private readonly ICacheService _cache;
         private readonly IMapper _mapper;
-        public ProductService(IRepository<ProductEntity> repo, ILogger<ProductService> logger, ICacheService cache, IMapper mapper)
+        public ProductService(IUnitOfWork unitOfWork, ILogger<ProductService> logger, ICacheService cache, IMapper mapper)
         {
             _cache=cache;
-            _repo=repo;
+           _unitOfWork=unitOfWork;  
             _logger=logger;
             _mapper=mapper;
         }
@@ -24,11 +25,12 @@ namespace mysql_net_core_api.Services.Product
             try
             {
                 var product = _mapper.Map<ProductEntity>(dto);
-                await _repo.AddAsync(product);
+                await _unitOfWork.Repository<ProductEntity>().AddAsync(product);
                 _logger.LogInformation("Product added to db with id: {id}", product.Id);
-                string cacheKey=$"Product_{product.Id}";
+                string cacheKey = CachceKeyHelper.GetCacheKey("Product", product.Id);
                 await _cache.SetAsync(cacheKey, product,TimeSpan.FromMinutes(5));
                 _logger.LogInformation("Product added to cache with id: {id}", product.Id);
+                await _unitOfWork.CompleteAsync();
                 return product;
             }
             catch (Exception ex )
@@ -42,11 +44,10 @@ namespace mysql_net_core_api.Services.Product
         {
             try
             {
-                string cacheKey = $"Product_{id}";
+                string cacheKey = CachceKeyHelper.GetCacheKey("Product", id);
                 await _cache.RemoveAsync(cacheKey);
                 _logger.LogInformation("Product removed from cache with id: {id}",id);
-                var product = _mapper.Map<ProductEntity>(id);
-                await _repo.DeleteAsync(product);
+                await _unitOfWork.Repository<ProductEntity>().DeleteAsync(id);
                 _logger.LogInformation("Product removed from db with id: {id}", id);
             }
             catch (Exception ex )
@@ -60,7 +61,7 @@ namespace mysql_net_core_api.Services.Product
         {
             try
             {
-                var products = await _repo.GetAllAsync();
+                var products = await _unitOfWork.Repository<ProductEntity>().GetAllAsync();
                 var newProducts = _mapper.Map<List<ProductDto>>(products);
                 _logger.LogInformation("All Products getting from db ");
                 return newProducts;
@@ -76,7 +77,7 @@ namespace mysql_net_core_api.Services.Product
         {
             try
             {
-                string cacheKey = $"Product_{id}";
+                string cacheKey = CachceKeyHelper.GetCacheKey("Product", id);
                 var product = await _cache.GetAsync<ProductEntity>(cacheKey);
                 _logger.LogInformation("Product getting from cache with id: {id}", id);
                 if (product != null)
@@ -85,7 +86,7 @@ namespace mysql_net_core_api.Services.Product
                     return _mapper.Map<ProductDto>(product);
                 }
 
-                var dbProduct = await _repo.GetByIdAsync(id);
+                var dbProduct = await _unitOfWork.Repository<ProductEntity>().GetByIdAsync(id);
                 _logger.LogInformation("Product getting from db with id: {id}", id);
                 await _cache.SetAsync(cacheKey, dbProduct,TimeSpan.FromMinutes(5));
                 _logger.LogInformation("Product added to cache with id: {id}", id);
@@ -105,11 +106,13 @@ namespace mysql_net_core_api.Services.Product
             {
                 var product = _mapper.Map<ProductEntity>(dto);
                 product.Id = id;
-                await _repo.UpdateAsync(product);
+                await _unitOfWork.Repository<ProductEntity>().UpdateAsync(product);
                 _logger.LogInformation("Product updated in db with id: {id}", id);
-                string cacheKey = $"Product_{id}";
+                string cacheKey = CachceKeyHelper.GetCacheKey("Product", product.Id);
                 await _cache.SetAsync(cacheKey, product, TimeSpan.FromMinutes(5));
                 _logger.LogInformation("Product updated in cache with id: {id}", id);
+                await _unitOfWork.CompleteAsync();
+                
             }
             catch (Exception ex)
             {

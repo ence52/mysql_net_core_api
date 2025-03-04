@@ -3,7 +3,7 @@ using mysql_net_core_api.Core.Entitites;
 
 namespace mysql_net_core_api.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : class, IEntity<Guid>
+    public class Repository<T> : IRepository<T> where T : class, IEntity
     {
         private readonly AppDbContext _context;
         private readonly DbSet<T> _dbSet;
@@ -17,17 +17,18 @@ namespace mysql_net_core_api.Repositories
         public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
         }
         public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
         }
-        public async Task DeleteAsync(T entity) 
+        public async Task DeleteAsync(Guid id) 
         {
+            var entity = await GetByIdAsync(id);
+            if (entity!=null)
+            {
             _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            }
     }
 }
 

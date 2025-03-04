@@ -2,7 +2,7 @@
 
 namespace mysql_net_core_api.Core.Entitites
 {
-    public class ProductEntity:IEntity<Guid>
+    public class ProductEntity:IEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
@@ -13,6 +13,6 @@ namespace mysql_net_core_api.Core.Entitites
         public int CategoryId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        //public Category? Category { get; set; }
+        public CategoryEntity? Category { get; set; }
     }
 }

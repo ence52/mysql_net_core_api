@@ -9,7 +9,7 @@ namespace mysql_net_core_api.Services.User
         Task<UserDto> GetByIdAsync(Guid id);
         Task<List<UserDto>> GetAllUsersAsync();
         Task<UserDto> CreateUserAsync(UserRegisterDto dto);
-        Task<bool> DeleteUserById(Guid id);
+        Task DeleteUserById(Guid id);
         
     }
 }

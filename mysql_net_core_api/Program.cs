@@ -6,9 +6,11 @@ using mysql_net_core_api;
 using mysql_net_core_api.Caching;
 using mysql_net_core_api.Core.Interfaces;
 using mysql_net_core_api.Repositories;
+using mysql_net_core_api.Repositories.UnitOfWork;
 using mysql_net_core_api.Services;
 using mysql_net_core_api.Services.Auth;
 using mysql_net_core_api.Services.JWT;
+using mysql_net_core_api.Services.Order;
 using mysql_net_core_api.Services.Product;
 using mysql_net_core_api.Services.User;
 using Serilog;
@@ -44,10 +46,13 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 //Product Configuration
 builder.Services.AddScoped<IProductService, ProductService>();
+//Order Configuration
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 //Generic Repo
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-//Generic Service
+//UnitOfWork
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 

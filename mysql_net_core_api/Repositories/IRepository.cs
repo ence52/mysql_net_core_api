@@ -2,12 +2,12 @@
 
 namespace mysql_net_core_api.Repositories
 {
-    public interface IRepository<T> where T : class,IEntity<Guid>
+    public interface IRepository<T> where T : class,IEntity
     {
         Task<T> GetByIdAsync(Guid id);
         Task<IEnumerable<T>> GetAllAsync();
         Task AddAsync(T entity);
-        Task DeleteAsync(T entity);
+        Task DeleteAsync(Guid id);
         Task UpdateAsync(T entity);
 
     }

@@ -12,8 +12,8 @@ using mysql_net_core_api;
 namespace mysql_net_core_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250228111118_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250303223146_updateOrderEntity2")]
+    partial class updateOrderEntity2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace mysql_net_core_api.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Category", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.CategoryEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,16 +33,24 @@ namespace mysql_net_core_api.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryGender")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("ParentCategoryId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,9 +62,6 @@ namespace mysql_net_core_api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(65,30)");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
 
@@ -67,7 +72,7 @@ namespace mysql_net_core_api.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderItem", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderItemEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -94,7 +99,7 @@ namespace mysql_net_core_api.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Product", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.ProductEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -156,15 +161,28 @@ namespace mysql_net_core_api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.CategoryEntity", b =>
+                {
+                    b.HasOne("mysql_net_core_api.Core.Entitites.CategoryEntity", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentCategoryId");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderEntity", b =>
                 {
                     b.HasOne("mysql_net_core_api.Core.Entitites.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -172,15 +190,15 @@ namespace mysql_net_core_api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderItem", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderItemEntity", b =>
                 {
-                    b.HasOne("mysql_net_core_api.Core.Entitites.Order", "Order")
+                    b.HasOne("mysql_net_core_api.Core.Entitites.OrderEntity", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("mysql_net_core_api.Core.Entitites.Product", "Product")
+                    b.HasOne("mysql_net_core_api.Core.Entitites.ProductEntity", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -191,23 +209,30 @@ namespace mysql_net_core_api.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Product", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.ProductEntity", b =>
                 {
-                    b.HasOne("mysql_net_core_api.Core.Entitites.Category", null)
+                    b.HasOne("mysql_net_core_api.Core.Entitites.CategoryEntity", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Category", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.CategoryEntity", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.Order", b =>
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.OrderEntity", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("mysql_net_core_api.Core.Entitites.UserEntity", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

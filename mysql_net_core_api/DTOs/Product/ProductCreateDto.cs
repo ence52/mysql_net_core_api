@@ -13,7 +13,9 @@ namespace mysql_net_core_api.DTOs.Product
         [Required]
         [Range(0.01, double.MaxValue)]
         public decimal Price { get; set; }
+        [Required]
         public int StockQuantity { get; set; }
+        [Required]
         public int CategoryId { get; set; }
         
     }

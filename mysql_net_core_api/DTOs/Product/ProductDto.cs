@@ -18,6 +18,5 @@ namespace mysql_net_core_api.DTOs.Product
         public decimal Price { get; set; }
         public int StockQuantity { get; set; }
         public int CategoryId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

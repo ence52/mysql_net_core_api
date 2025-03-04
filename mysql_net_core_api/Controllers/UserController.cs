@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using mysql_net_core_api.Core.Entitites;
 using mysql_net_core_api.DTOs.User;
 using mysql_net_core_api.Services.User;
 
@@ -92,12 +89,8 @@ namespace mysql_net_core_api.Controllers
         {
             try
             {
-                var result = await _service.DeleteUserById(id);
-                if (!result)
-                {
-                    _logger.LogError($"User not found: {id}");
-                    return NotFound();
-                }
+                await _service.DeleteUserById(id);
+                _logger.LogInformation("User deleted by id: {id}", id);
                 return NoContent();
             }
             catch (Exception ex)
