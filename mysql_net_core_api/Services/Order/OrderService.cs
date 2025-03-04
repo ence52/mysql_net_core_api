@@ -29,8 +29,13 @@ namespace mysql_net_core_api.Services.Order
                 var order = _mapper.Map<OrderEntity>(dto);
                 var cacheKey = CachceKeyHelper.GetCacheKey("Order", order.Id);
                 //order.OrderItems.Select(orderItem => orderItem.OrderId = order.Id);
-                order.OrderItems.Select(item => item.CalculateTotalPrice());
-                order.CalculateTotalAmount();
+
+                foreach (var item in order.OrderItems)
+                {
+                    var product = await _unitOfWork.Repository<ProductEntity>().GetByPropAsync(i => i.Id == item.ProductId);
+                    item.TotalPrice = product.Price * item.Quantity;
+                }
+               order.TotalAmount= order.OrderItems.Sum(o => o.TotalPrice);
                 await _unitOfWork.Repository<OrderEntity>().AddAsync(order);
                 _logger.LogInformation("Order added with id:{id}", order.Id);
                 await _cache.SetAsync(cacheKey, order,TimeSpan.FromMinutes(5));
@@ -71,7 +76,7 @@ namespace mysql_net_core_api.Services.Order
                     _logger.LogInformation("Order found in cache with key:{key}", cacheKey);
                     return _mapper.Map<OrderDto>(cachedOrder);
                 }
-                var dbOrder = await _unitOfWork.Repository<OrderEntity>().GetByIdAsync(id);
+                var dbOrder = await _unitOfWork.Repository<OrderEntity>().GetByPropAsync(order => order.Id == id);
                 _logger.LogInformation("Order found in db with id:{id}", id);
                 return _mapper.Map<OrderDto>(dbOrder);
             }
@@ -101,5 +106,7 @@ namespace mysql_net_core_api.Services.Order
                 throw;
             }
         }
+
+        
     }
 }

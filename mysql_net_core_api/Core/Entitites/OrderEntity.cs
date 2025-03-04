@@ -13,12 +13,9 @@ namespace mysql_net_core_api.Core.Entitites
         public decimal TotalAmount { get; set; } 
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
-        public UserEntity? User { get; set; }
+        [JsonIgnore]
+        public UserEntity User { get; set; }
         [JsonIgnore]
         public ICollection<OrderItemEntity> OrderItems { get; set; }
-
-        public decimal CalculateTotalAmount() =>TotalAmount= OrderItems?.Sum(item => { item.CalculateTotalPrice();
-            return item.TotalPrice;
-        })??0;
     }
 }

@@ -30,7 +30,8 @@ namespace mysql_net_core_api.Services.Auth
         public async Task<string> AuthenticateAsync(UserAuthDto userAuthDto)
         {
             _logger.LogInformation("User getting from db with username: {username}", userAuthDto.Email);
-           var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(userAuthDto.Email);
+           //var user = await _unitOfWork.UserRepository.GetUserByUsernameAsync(userAuthDto.Email);
+           var user = await _unitOfWork.Repository<UserEntity>().GetByPropAsync(user=>user.Email==userAuthDto.Email);
             if (user == null || !VerifyPassword(userAuthDto.Password, user.PasswordHash)) {
                 _logger.LogError("Wrong password or username");
                 return null;
@@ -48,7 +49,7 @@ namespace mysql_net_core_api.Services.Auth
         public async Task<bool> RegisterAsync(UserRegisterDto registerDto)
         {
             _logger.LogInformation("Checking username {username}", registerDto.Email);
-            var existingUser = await _unitOfWork.UserRepository.GetUserByUsernameAsync(registerDto.Email);
+            var existingUser = await _unitOfWork.Repository<UserEntity>().GetByPropAsync(user => user.Email == registerDto.Email);
             if (existingUser != null) {
                 _logger.LogWarning("This email exists! {username}", registerDto.Email);
                 return false;
@@ -57,7 +58,7 @@ namespace mysql_net_core_api.Services.Auth
             _logger.LogInformation("Password hashed");
             var newUser = _mapper.Map<UserEntity>(registerDto);
             newUser.PasswordHash= hashedPassword;
-            await _unitOfWork.UserRepository.AddAsync(newUser);
+            await _unitOfWork.Repository<UserEntity>().AddAsync(newUser);
             _logger.LogInformation($"User added to db: {registerDto.Email}");
             _logger.LogInformation($"User registered: {registerDto.Email}");
             await _unitOfWork.CompleteAsync();

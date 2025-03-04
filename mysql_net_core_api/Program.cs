@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using mysql_net_core_api;
 using mysql_net_core_api.Caching;
@@ -15,6 +14,7 @@ using mysql_net_core_api.Services.Product;
 using mysql_net_core_api.Services.User;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,13 +57,23 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 //JWT Configuration
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
-{
-    opt.UseSecurityTokenValidators = true;
-    opt.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = false, ValidateAudience = false, ValidateLifetime = false,ValidateIssuerSigningKey=true ,IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT")["Key"]!))};
-    
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("JWT");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+        options.UseSecurityTokenValidators=true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = ClaimTypes.Role,
+            IssuerSigningKey = key
+        };
+    });
 
-});
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IJWTService, JWTService>();
 //Auth

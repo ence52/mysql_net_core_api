@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using mysql_net_core_api.Core.Entitites;
+using mysql_net_core_api.Core.Enums.Product;
 using mysql_net_core_api.Core.Helpers;
 using mysql_net_core_api.Core.Interfaces;
 using mysql_net_core_api.DTOs.Product;
@@ -86,7 +88,7 @@ namespace mysql_net_core_api.Services.Product
                     return _mapper.Map<ProductDto>(product);
                 }
 
-                var dbProduct = await _unitOfWork.Repository<ProductEntity>().GetByIdAsync(id);
+                var dbProduct = await _unitOfWork.Repository<ProductEntity>().GetByPropAsync(product => product.Id == id);
                 _logger.LogInformation("Product getting from db with id: {id}", id);
                 await _cache.SetAsync(cacheKey, dbProduct,TimeSpan.FromMinutes(5));
                 _logger.LogInformation("Product added to cache with id: {id}", id);
@@ -119,6 +121,38 @@ namespace mysql_net_core_api.Services.Product
                 _logger.LogError("An error occured while updating product with id:{id}. {ex}", id, ex);
                 throw;
             }
+        }
+
+        public async Task<ICollection<ProductDto>> GetFilteredProductsAsync(ProductQuery  query) {
+            var productsQuery = _unitOfWork.Repository<ProductEntity>().GetByQuery();
+            if (query.CategoryId.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.CategoryId == query.CategoryId.Value);
+            }
+            if (!string.IsNullOrEmpty(query.Name))
+            {
+                productsQuery = productsQuery.Where(p => p.Name.Contains(query.Name));
+            }
+            if(query.MinPrice.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.Price >= query.MinPrice.Value);
+            }
+            if (query.MaxPrice.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.Price <= query.MaxPrice.Value);
+            }
+            if (query.SortBy.HasValue)
+            {
+
+                productsQuery = query.SortBy switch
+                {
+                    ProductSortByEnum.Name => query.IsDescending ? productsQuery.OrderByDescending(p => p.Name) : productsQuery.OrderBy(p => p.Name),
+                    ProductSortByEnum.Price => query.IsDescending ? productsQuery.OrderByDescending(p => p.Price) : productsQuery.OrderBy(p => p.Price),
+                    _ => productsQuery
+                };
+            }
+            var products = await productsQuery.ToListAsync();
+            return _mapper.Map<ICollection<ProductDto>>(products);
         }
     }
 }

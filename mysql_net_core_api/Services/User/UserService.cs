@@ -2,6 +2,7 @@
 using mysql_net_core_api.Core.Entitites;
 using mysql_net_core_api.Core.Helpers;
 using mysql_net_core_api.Core.Interfaces;
+using mysql_net_core_api.DTOs.Order;
 using mysql_net_core_api.DTOs.User;
 using mysql_net_core_api.Repositories;
 using mysql_net_core_api.Services.User;
@@ -96,7 +97,7 @@ namespace mysql_net_core_api.Services
                 _logger.LogInformation("User {id} found in cache", id);
                 return cachedUser;
             }
-                var user = await _unitOfWork.Repository<UserEntity>().GetByIdAsync(id);
+                var user = await _unitOfWork.Repository<UserEntity>().GetByPropAsync(user=>user.Id==id);
                 if (user == null)
                 {
                     throw new Exception($"User {user!.Id} not found");
@@ -112,6 +113,22 @@ namespace mysql_net_core_api.Services
             catch (Exception)
             {
                 _logger.LogError("Error while getting user {id}", id);
+                throw;
+            }
+        }
+
+        public async Task<ICollection<OrderDto>> GetOrdersAsync(string email)
+        {
+            var user = await _unitOfWork.Repository<UserEntity>().GetByPropAsync(u => u.Email == email);
+            try
+            {
+                var orders = await _unitOfWork.Repository<OrderEntity>().GetWhereAsync(o => o.UserId == user.Id);
+                _logger.LogInformation("Orders getting by userId: {id}", user.Id);
+                return _mapper.Map<ICollection<OrderDto>>(orders);
+            }
+            catch (Exception)
+            {
+                _logger.LogError("An error occured while getting orders by userId:{id}", user.Id);
                 throw;
             }
         }

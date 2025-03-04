@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using mysql_net_core_api.Core.Entitites;
+using System.Linq.Expressions;
 
 namespace mysql_net_core_api.Repositories
 {
@@ -12,7 +13,8 @@ namespace mysql_net_core_api.Repositories
             _context = context;
             _dbSet = _context.Set<T>();
         }
-        public async Task<T> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
+        public async Task<T> GetByPropAsync(Expression<Func<T, bool>> expression) => await _dbSet.FirstOrDefaultAsync(expression);
+
         public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
         public async Task AddAsync(T entity)
         {
@@ -24,12 +26,21 @@ namespace mysql_net_core_api.Repositories
         }
         public async Task DeleteAsync(Guid id) 
         {
-            var entity = await GetByIdAsync(id);
+            var entity = await _dbSet.FindAsync(id);
             if (entity!=null)
             {
             _dbSet.Remove(entity);
             }
-    }
-}
+        }
 
+        public async Task<ICollection<T>> GetWhereAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _dbSet.Where(expression).ToListAsync();
+        }
+
+        public  IQueryable<T> GetByQuery()
+        {
+            return  _dbSet.AsQueryable();
+        }
+    }
 }

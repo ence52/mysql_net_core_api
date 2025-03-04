@@ -10,5 +10,6 @@ namespace mysql_net_core_api.Services.Product
         Task<ProductEntity> CreateProductAsync(ProductCreateDto dto);
         Task UpdateProductAsync(Guid id, ProductCreateDto dto);
         Task DeleteProductById(Guid id);
+        Task<ICollection<ProductDto>> GetFilteredProductsAsync(ProductQuery query);
     }
 }

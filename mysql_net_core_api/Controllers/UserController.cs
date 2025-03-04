@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using mysql_net_core_api.DTOs.User;
 using mysql_net_core_api.Services.User;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace mysql_net_core_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
     public class UserController : ControllerBase
     {
         private readonly IUserService _service;
@@ -99,7 +102,20 @@ namespace mysql_net_core_api.Controllers
                 throw;
             }
         }
-        
+        [Authorize]
+        [HttpGet("orders")]
+        public async Task<IActionResult> GetOrders()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.Email)?.Value;
+            Console.WriteLine($"{userIdClaim}----------------------------------------------------");
+            if (userIdClaim==null)
+            {
+                return Unauthorized();
+            }
+            
+            var orders = await _service.GetOrdersAsync(userIdClaim);
+            return Ok(orders);
+        }
 
         
     }

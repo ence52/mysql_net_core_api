@@ -7,7 +7,7 @@ namespace mysql_net_core_api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles ="Admin")]
+    
     public class ProductController : ControllerBase
     {
         private readonly IProductService _service;
@@ -17,7 +17,7 @@ namespace mysql_net_core_api.Controllers
             _logger = logger;
             _service = service;
         }
-        [Authorize(Roles = "Admin,Customer")]
+       
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -41,7 +41,7 @@ namespace mysql_net_core_api.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,Customer")]
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id) {
             try
@@ -125,6 +125,12 @@ namespace mysql_net_core_api.Controllers
                 throw;
             }
         }
-    
+
+        [HttpPost("query")]
+        public async Task<IActionResult> GetFilteredProducts([FromBody]ProductQuery query)
+        {
+            var products = await _service.GetFilteredProductsAsync(query);
+            return Ok(products);
+        }
     }
 }
